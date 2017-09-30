@@ -1,0 +1,7 @@
+/build
+/dist
+.project
+.pydevproject
+/pyram.egg-info
+__pycache__/
+
