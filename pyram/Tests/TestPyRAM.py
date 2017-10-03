@@ -52,6 +52,7 @@ class TestPyRAM(unittest.TestCase):
                       rmax=self.inputs['rmax'], dr=self.inputs['dr'],
                       dz=self.inputs['dz'], zmplt=self.inputs['zmplt'],
                       c0=self.inputs['c0'])
+        pyram.run()
 
         with open('tl.line', 'w') as fid:
             for ran in range(len(pyram.vr)):

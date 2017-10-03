@@ -27,6 +27,9 @@ included.
 '''
 
 import numpy
+from time import process_time
+from pyram.matrc import matrc
+from pyram.solve import solve
 
 
 class PyRAM:
@@ -76,18 +79,23 @@ class PyRAM:
         '''
 
         self._freq, self._zs, self._zr = freq, zs, zr
-
         self.check_inputs(z_ss, rp_ss, cw, z_sb, rp_sb, cb, rhob, attn, rbzb)
-
         self.get_params(**kwargs)
+
+    def run(self):
+
+        t0 = process_time()
 
         self.setup()
 
         while self.r < self._rmax:
             self.updat()
-            self.solve()
+            solve(self.u, self.v, self.s1, self.s2, self.s3,
+                  self.r1, self.r2, self.r3, self.iz, self.nz, self._np)
             self.r += self._dr
             self.outpt()
+
+        self.proc_time = process_time() - t0
 
     def check_inputs(self, z_ss, rp_ss, cw, z_sb, rp_sb, cb, rhob, attn, rbzb):
 
@@ -164,12 +172,13 @@ class PyRAM:
                                                    self._rp_sb.max()]))
         self.vr = numpy.linspace(self._dr, self._rmax,
                                  int(numpy.round(self._rmax/self._dr)))
-#        self._rmax += self._dr  # Output at last range
 
         self._ns = kwargs.get('ns', PyRAM._ns_default)
         self._rs = kwargs.get('rs', self._rmax + self._dr)
 
         self._lyrw = kwargs.get('lyrw', PyRAM._lyrw_default)
+
+        self.proc_time = None
 
     def setup(self):
 
@@ -216,7 +225,8 @@ class PyRAM:
         self.f2 = numpy.zeros(self.nz+2)
         self.f3 = numpy.zeros(self.nz+2)
         self.ksqw = numpy.zeros(self.nz+2)
-        self.tll = numpy.zeros(int(numpy.floor(self._rmax/(self._dr*self._ndr))))
+        self.tll = numpy.zeros(int(numpy.floor(self._rmax /
+                                               (self._dr*self._ndr))))
         self.tlg = numpy.zeros([int(numpy.floor(self.nz+2/self._ndz)),
                                self.tll.size])
         self.tlc = -1  # TL output range counter
@@ -232,7 +242,10 @@ class PyRAM:
 
         # The propagation matrices
         self.epade()
-        self.matrc()
+        matrc(self.k0, self._dz, self.iz, self.iz, self.nz, self._np,
+              self.f1, self.f2, self.f3, self.ksq, self.alpw, self.alpb,
+              self.ksqw, self.ksqb, self.rhob, self.r1, self.r2, self.r3,
+              self.s1, self.s2, self.s3, self.pd1, self.pd2)
 
     def profl(self):
 
@@ -266,130 +279,6 @@ class PyRAM:
             self.alpw[i] = numpy.sqrt(self.cw[i]/self._c0)
             self.alpb[i] = numpy.sqrt(self.rhob[i]*self.cb[i]/self._c0)
 
-    def matrc(self, jz=None, np=None):
-
-        '''The tridiagonal matrices'''
-
-        if jz is None:
-            jz = self.iz
-        if np is None:
-            np = self._np
-
-        a1 = self.k0**2/6
-        a2 = 2*self.k0**2/3
-        a3 = a1
-        cfact = 0.5/self._dz**2
-        dfact = 1/12
-
-        iz = self.iz
-
-        # New matrices when iz == jz
-        if iz == jz:
-            i1 = 1
-            i2 = self.nz
-            for i in range(iz+1):
-                self.f1[i] = 1/self.alpw[i]
-                self.f2[i] = 1
-                self.f3[i] = self.alpw[i]
-                self.ksq[i] = self.ksqw[i]
-            for i in range(iz+1, self.nz+2):
-                self.f1[i] = self.rhob[i]/self.alpb[i]
-                self.f2[i] = 1/self.rhob[i]
-                self.f3[i] = self.alpb[i]
-                self.ksq[i] = self.ksqb[i]
-        # Updated matrices when iz != jz
-        elif iz > jz:
-            i1 = jz
-            i2 = iz+1
-            for i in range(jz+1, iz+1):
-                self.f1[i] = 1/self.alpw[i]
-                self.f2[i] = 1
-                self.f3[i] = self.alpw[i]
-                self.ksq[i] = self.ksqw[i]
-        elif iz < jz:
-            i1 = iz
-            i2 = jz+1
-            for i in range(iz+1, jz+1):
-                self.f1[i] = self.rhob[i]/self.alpb[i]
-                self.f2[i] = 1/self.rhob[i]
-                self.f3[i] = self.alpb[i]
-                self.ksq[i] = self.ksqb[i]
-
-        # Discretization by Galerkin's method
-
-        for i in range(i1, i2+1):
-
-            c1 = cfact*self.f1[i]*(self.f2[i-1] + self.f2[i])*self.f3[i-1]
-            c2 = -cfact*self.f1[i] * \
-                (self.f2[i-1] + 2*self.f2[i] + self.f2[i+1])*self.f3[i]
-            c3 = cfact*self.f1[i]*(self.f2[i] + self.f2[i+1])*self.f3[i+1]
-            d1 = c1 + dfact*(self.ksq[i-1] + self.ksq[i])
-            d2 = c2 + dfact*(self.ksq[i-1] + 6*self.ksq[i] + self.ksq[i+1])
-            d3 = c3 + dfact*(self.ksq[i] + self.ksq[i+1])
-
-            for j in range(np):
-                self.r1[i, j] = a1 + self.pd2[j]*d1
-                self.r2[i, j] = a2 + self.pd2[j]*d2
-                self.r3[i, j] = a3 + self.pd2[j]*d3
-                self.s1[i, j] = a1 + self.pd1[j]*d1
-                self.s2[i, j] = a2 + self.pd1[j]*d2
-                self.s3[i, j] = a3 + self.pd1[j]*d3
-
-        # The matrix decomposition
-        for j in range(np):
-
-            for i in range(i1, iz+1):
-                rfact = 1/(self.r2[i, j] - self.r1[i, j]*self.r3[i-1, j])
-                self.r1[i, j] *= rfact
-                self.r3[i, j] *= rfact
-                self.s1[i, j] *= rfact
-                self.s2[i, j] *= rfact
-                self.s3[i, j] *= rfact
-
-            for i in range(i2, iz+1, -1):
-                rfact = 1/(self.r2[i, j] - self.r3[i, j]*self.r1[i+1, j])
-                self.r1[i, j] *= rfact
-                self.r3[i, j] *= rfact
-                self.s1[i, j] *= rfact
-                self.s2[i, j] *= rfact
-                self.s3[i, j] *= rfact
-
-            self.r2[iz+1, j] -= self.r1[iz+1, j]*self.r3[iz, j]
-            self.r2[iz+1, j] -= self.r3[iz+1, j]*self.r1[iz+2, j]
-            self.r2[iz+1, j] = 1/self.r2[iz+1, j]
-
-    def solve(self, np=None):
-
-        '''The tridiagonal solver'''
-
-        if np is None:
-            np = self._np
-
-        eps = 1e-30
-
-        for j in range(np):
-            # The right side
-            for i in range(1, self.nz+1):
-                self.v[i] = self.s1[i, j]*self.u[i-1] + \
-                    self.s2[i, j]*self.u[i] + self.s3[i, j]*self.u[i+1] + eps
-
-            # The elimination steps
-            for i in range(2, self.iz+1):
-                self.v[i] -= self.r1[i, j]*self.v[i-1] + eps
-            for i in range(self.nz-1, self.iz+1, -1):
-                self.v[i] -= self.r3[i, j]*self.v[i+1] + eps
-
-            self.u[self.iz+1] = (self.v[self.iz+1] -
-                                 self.r1[self.iz+1, j]*self.v[self.iz] -
-                                 self.r3[self.iz+1, j]*self.v[self.iz+2]) * \
-                self.r2[self.iz+1, j] + eps
-
-            # The back substitution steps
-            for i in range(self.iz, -1, -1):
-                self.u[i] = self.v[i] - self.r3[i, j]*self.u[i+1] + eps
-            for i in range(self.iz+2, self.nz+1):
-                self.u[i] = self.v[i] - self.r1[i, j]*self.u[i-1] + eps
-
     def updat(self):
 
         '''Matrix updates'''
@@ -407,28 +296,43 @@ class PyRAM:
             self.iz = max(1, self.iz)
             self.iz = min(self.nz-1, self.iz)
             if (self.iz != jz):
-                self.matrc(jz=jz)
+                matrc(self.k0, self._dz, self.iz, jz, self.nz, self._np,
+                      self.f1, self.f2, self.f3, self.ksq, self.alpw,
+                      self.alpb, self.ksqw, self.ksqb, self.rhob, self.r1,
+                      self.r2, self.r3, self.s1, self.s2, self.s3, self.pd1,
+                      self.pd2)
 
         # Varying sound speed profile
         if self.rd_ss and (self.ss_ind < self._rp_ss.size-1):
             if self.r >= self._rp_ss[self.ss_ind+1]:
                 self.ss_ind += 1
                 self.profl()
-                self.matrc()
+                matrc(self.k0, self._dz, self.iz, self.iz, self.nz, self._np,
+                      self.f1, self.f2, self.f3, self.ksq, self.alpw,
+                      self.alpb, self.ksqw, self.ksqb, self.rhob, self.r1,
+                      self.r2, self.r3, self.s1, self.s2, self.s3, self.pd1,
+                      self.pd2)
 
         # Varying seabed profile
         if self.rd_sb and (self.sb_ind < self._rp_sb.size-1):
             if self.r >= self._rp_sb[self.sb_ind+1]:
                 self.sb_ind += 1
                 self.profl()
-                self.matrc()
+                matrc(self.k0, self._dz, self.iz, self.iz, self.nz, self._np,
+                      self.f1, self.f2, self.f3, self.ksq, self.alpw,
+                      self.alpb, self.ksqw, self.ksqb, self.rhob, self.r1,
+                      self.r2, self.r3, self.s1, self.s2, self.s3, self.pd1,
+                      self.pd2)
 
         # Turn off the stability constraints
         if self.r >= self._rs:
             self._ns = 0
             self._rs = self._rmax + self._dr
             self.epade()
-            self.matrc()
+            matrc(self.k0, self._dz, self.iz, self.iz, self.nz, self._np,
+                  self.f1, self.f2, self.f3, self.ksq, self.alpw, self.alpb,
+                  self.ksqw, self.ksqb, self.rhob, self.r1, self.r2, self.r3,
+                  self.s1, self.s2, self.s3, self.pd1, self.pd2)
 
     def selfs(self):
 
@@ -450,15 +354,23 @@ class PyRAM:
         self.pd1[0] = 0
         self.pd2[0] = -1
 
-        self.matrc(np=1)
-        self.solve(np=1)
-        self.solve(np=1)
+        matrc(self.k0, self._dz, self.iz, self.iz, self.nz, 1,
+              self.f1, self.f2, self.f3, self.ksq, self.alpw, self.alpb,
+              self.ksqw, self.ksqb, self.rhob, self.r1, self.r2, self.r3,
+              self.s1, self.s2, self.s3, self.pd1, self.pd2)
+        for _ in range(2):
+            solve(self.u, self.v, self.s1, self.s2, self.s3,
+                  self.r1, self.r2, self.r3, self.iz, self.nz, 1)
 
         # Apply the operator (1-X)**2*(1+X)**(-1/4)*exp(ci*k0*r*sqrt(1+X))
 
         self.epade(ip=2)
-        self.matrc()
-        self.solve()
+        matrc(self.k0, self._dz, self.iz, self.iz, self.nz, self._np,
+              self.f1, self.f2, self.f3, self.ksq, self.alpw, self.alpb,
+              self.ksqw, self.ksqb, self.rhob, self.r1, self.r2, self.r3,
+              self.s1, self.s2, self.s3, self.pd1, self.pd2)
+        solve(self.u, self.v, self.s1, self.s2, self.s3,
+              self.r1, self.r2, self.r3, self.iz, self.nz, self._np)
 
     def outpt(self):
 
@@ -557,15 +469,6 @@ class PyRAM:
         dh1, dh2 = self.fndrt(dh1, self._np, dh2, self.guerre)
         for j in range(self._np):
             self.pd2[j] = -1/dh2[j]
-
-    @staticmethod
-    def g(sig, x, alp, nu):
-
-        '''The operator function'''
-
-        g = (1 - nu*x)**2 * numpy.exp(alp*numpy.log(1 + x) +
-                                      1j*sig*(-1 + numpy.sqrt(1 + x)))
-        return g
 
     @staticmethod
     def deriv(n, sig, alp, dg, dh1, dh2, dh3, _bin, nu):
