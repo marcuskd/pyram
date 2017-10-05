@@ -30,6 +30,7 @@ import numpy
 from time import process_time
 from pyram.matrc import matrc
 from pyram.solve import solve
+from pyram.outpt import outpt
 
 
 class PyRAM:
@@ -39,7 +40,7 @@ class PyRAM:
     _ndr_default = 1
     _ndz_default = 1
     _ns_default = 1
-    _lyrw_default = 30
+    _lyrw_default = 20
 
     def __init__(self, freq, zs, zr, z_ss, rp_ss, cw, z_sb, rp_sb, cb, rhob,
                  attn, rbzb, **kwargs):
@@ -93,7 +94,10 @@ class PyRAM:
             solve(self.u, self.v, self.s1, self.s2, self.s3,
                   self.r1, self.r2, self.r3, self.iz, self.nz, self._np)
             self.r += self._dr
-            self.outpt()
+            self.mdr, self.tlc = \
+                (outpt(self.r, self.mdr, self._ndr, self._ndz, self.nzplt,
+                       self.tlc, self.f3, self.u, self.dir, self.ir, self.tll,
+                       self.tlg)[:])
 
         self.proc_time = process_time() - t0
 
@@ -190,7 +194,6 @@ class PyRAM:
                                       axis=0)
 
         self.eta = 1/(40*numpy.pi*numpy.log10(numpy.exp(1)))
-        self.eps = 1e-20
         self.ib = 0  # Bathymetry pair index
         self.mdr = 0  # Output range counter
         self.r = self._dr
@@ -201,7 +204,7 @@ class PyRAM:
         self.k0 = self.omega/self._c0
         self._zmax = self._z_ss.max() + self._lyrw*self._lambda
         self.nz = int(numpy.floor(self._zmax/self._dz)) - 1  # Number of depth grid points - 2
-        self.nzplt = int(numpy.floor(self._zmplt/self._dz)) - 1  # Deepest output grid point
+        self.nzplt = int(numpy.floor(self._zmplt/self._dz))  # Deepest output grid point
         self.iz = int(numpy.floor(self._rbzb[0, 1]/self._dz))  # First index below seabed
         self.iz = max(1, self.iz)
         self.iz = min(self.nz-1, self.iz)
@@ -227,7 +230,7 @@ class PyRAM:
         self.ksqw = numpy.zeros(self.nz+2)
         self.tll = numpy.zeros(int(numpy.floor(self._rmax /
                                                (self._dr*self._ndr))))
-        self.tlg = numpy.zeros([int(numpy.floor(self.nz+2/self._ndz)),
+        self.tlg = numpy.zeros([int(numpy.floor(self.nzplt/self._ndz)),
                                self.tll.size])
         self.tlc = -1  # TL output range counter
 
@@ -238,7 +241,10 @@ class PyRAM:
         # The initial profiles and starting field
         self.profl()
         self.selfs()
-        self.outpt()
+        self.mdr, self.tlc = \
+            (outpt(self.r, self.mdr, self._ndr, self._ndz, self.nzplt,
+                   self.tlc, self.f3, self.u, self.dir, self.ir, self.tll,
+                   self.tlg)[:])
 
         # The propagation matrices
         self.epade()
@@ -371,27 +377,6 @@ class PyRAM:
               self.s1, self.s2, self.s3, self.pd1, self.pd2)
         solve(self.u, self.v, self.s1, self.s2, self.s3,
               self.r1, self.r2, self.r3, self.iz, self.nz, self._np)
-
-    def outpt(self):
-
-        '''Output transmission loss'''
-
-        self.mdr += 1
-        if self.mdr == self._ndr:
-            self.mdr = 0
-            self.tlc += 1
-            ur = (1 - self.dir)*self.f3[self.ir]*self.u[self.ir] + \
-                self.dir*self.f3[self.ir+1]*self.u[self.ir+1]
-            self.tll[self.tlc] = -20*numpy.log10(numpy.abs(ur) + self.eps) + \
-                10*numpy.log10(self.r + self.eps)
-
-            j = 0
-            for i in range(self._ndz-1, self.nzplt+1, self._ndz):
-                ur = self.u[i]*self.f3[i]
-                j += 1
-                self.tlg[j, self.tlc] = \
-                    -20*numpy.log10(numpy.abs(ur) + self.eps) + \
-                    10*numpy.log10(self.r + self.eps)
 
     def epade(self, ip=1):
 
