@@ -7,7 +7,7 @@ The purpose of PyRAM is to provide a version of RAM which can be used within a
 Python interpreter environment (e.g. Spyder or the Jupyter notebook) and is
 easier to understand, extend and integrate into other applications than the
 Fortran version. It is written in pure Python and achieves speeds comparable to
-native code by using the Numba library for JIT compilation and parallelisation.
+native code by using the Numba library for JIT compilation.
 
 The PyRAM class contains methods which largely correspond to the original
 Fortran subroutines and functions (including retaining the same names). The
@@ -22,8 +22,6 @@ in specifying the environment (e.g. if the data comes from different sources).
 
 PyRAM also provides various conveniences, e.g. automatic calculation of range
 and depth steps (though these can be overridden using keyword arguments).
-Additional functionality including status outputs and run time calculation is
-included.
 '''
 
 import numpy
@@ -89,14 +87,16 @@ class PyRAM:
 
         self.setup()
 
-        while self.r < self._rmax:
+        rind = 0
+        while rind < self.vr.size-1:
             self.updat()
             solve(self.u, self.v, self.s1, self.s2, self.s3,
                   self.r1, self.r2, self.r3, self.iz, self.nz, self._np)
-            self.r += self._dr
+            rind += 1
+            self.r = self.vr[rind]
             self.mdr, self.tlc = \
-                (outpt(self.r, self.mdr, self._ndr, self._ndz, self.nzplt,
-                       self.tlc, self.f3, self.u, self.dir, self.ir, self.tll,
+                (outpt(self.r, self.mdr, self._ndr, self._ndz, self.tlc,
+                       self.f3, self.u, self.dir, self.ir, self.tll,
                        self.tlg)[:])
 
         self.proc_time = process_time() - t0
@@ -174,8 +174,6 @@ class PyRAM:
 
         self._rmax = kwargs.get('rmax', numpy.max([self._rp_ss.max(),
                                                    self._rp_sb.max()]))
-        self.vr = numpy.linspace(self._dr, self._rmax,
-                                 int(numpy.round(self._rmax/self._dr)))
 
         self._ns = kwargs.get('ns', PyRAM._ns_default)
         self._rs = kwargs.get('rs', self._rmax + self._dr)
@@ -228,10 +226,12 @@ class PyRAM:
         self.f2 = numpy.zeros(self.nz+2)
         self.f3 = numpy.zeros(self.nz+2)
         self.ksqw = numpy.zeros(self.nz+2)
-        self.tll = numpy.zeros(int(numpy.floor(self._rmax /
-                                               (self._dr*self._ndr))))
-        self.tlg = numpy.zeros([int(numpy.floor(self.nzplt/self._ndz)),
-                               self.tll.size])
+        nvr = int(numpy.floor(self._rmax/(self._dr*self._ndr)))
+        nvz = int(numpy.floor(self.nzplt/self._ndz))
+        self.vr = numpy.arange(1, nvr+1)*self._dr
+        self.vz = numpy.arange(1, nvz+1)*self._dz
+        self.tll = numpy.zeros(nvr)
+        self.tlg = numpy.zeros([nvz, nvr])
         self.tlc = -1  # TL output range counter
 
         self.ss_ind = 0  # Sound speed profile range index
@@ -242,9 +242,8 @@ class PyRAM:
         self.profl()
         self.selfs()
         self.mdr, self.tlc = \
-            (outpt(self.r, self.mdr, self._ndr, self._ndz, self.nzplt,
-                   self.tlc, self.f3, self.u, self.dir, self.ir, self.tll,
-                   self.tlg)[:])
+            (outpt(self.r, self.mdr, self._ndr, self._ndz, self.tlc, self.f3,
+                   self.u, self.dir, self.ir, self.tll, self.tlg)[:])
 
         # The propagation matrices
         self.epade()

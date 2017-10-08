@@ -4,10 +4,9 @@ import numpy
 from numba import jit, int64, float64, complex128
 
 
-@jit(int64[:](float64, int64, int64, int64, int64, int64, float64[:],
-              complex128[:], float64, int64, float64[:], float64[:, :]),
-     nopython=True)
-def outpt(r, mdr, ndr, ndz, nzplt, tlc, f3, u, _dir, ir, tll, tlg):
+@jit(int64[:](float64, int64, int64, int64, int64, float64[:], complex128[:],
+              float64, int64, float64[:], float64[:, :]), nopython=True)
+def outpt(r, mdr, ndr, ndz, tlc, f3, u, _dir, ir, tll, tlg):
 
     '''Output transmission loss'''
 
