@@ -1,0 +1,67 @@
+package:
+  name: pyram
+  version: "1.0.0"
+
+source:
+  fn: pyram-1.0.0.tar.gz
+  url: https://pypi.python.org/packages/d8/f9/479ae32f7515be51b963c6f7c8ee81197209c25edab4685d4f1151424641/pyram-1.0.0.tar.gz
+  md5: 68267a0cdc36b174c3b8ade6a15645b8
+#  patches:
+   # List any patch files here
+   # - fix.patch
+
+# build:
+  # noarch: python
+  # preserve_egg_dir: True
+  # entry_points:
+    # Put any entry points (scripts to be generated automatically) here. The
+    # syntax is module:function.  For example
+    #
+    # - pyram = pyram:main
+    #
+    # Would create an entry point called pyram that calls pyram.main()
+
+
+  # If this is a new build for the same version, increment the build
+  # number. If you do not include this key, it defaults to 0.
+  # number: 1
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - numpy >=1.13
+    - numba >=0.35
+
+  run:
+    - python
+    - numpy >=1.13
+    - numba >=0.35
+
+test:
+  # Python imports
+  imports:
+    - pyram
+    - pyram.Tests
+
+  # commands:
+    # You can put test commands to be run here.  Use this to test that the
+    # entry points work.
+
+
+  # You can also put a file called run_test.py in the recipe that will be run
+  # at test time.
+
+  # requires:
+    # Put any additional test requirements here.  For example
+    # - nose
+
+about:
+  home: https://github.com/marcuskd/pyram
+  license: BSD License
+  summary: 'Python adaptation of the Range-dependent Acoustic Model (RAM)'
+  license_family: BSD
+
+# See
+# http://docs.continuum.io/conda/build.html for
+# more information about meta.yaml
