@@ -3,6 +3,7 @@ PyRAM: Python adaptation of the Range-dependent Acoustic Model (RAM).
 RAM was created by Michael D Collins at the US Naval Research Laboratory.
 This adaptation is of RAM v1.5, available from the Ocean Acoustics Library at
 http://oalib.hlsresearch.com/PE/RAM/
+
 The purpose of PyRAM is to provide a version of RAM which can be used within a
 Python interpreter environment (e.g. Spyder or the Jupyter notebook) and is
 easier to understand, extend and integrate into other applications than the
@@ -44,6 +45,7 @@ class PyRAM:
                  attn, rbzb, **kwargs):
 
         '''
+        -------
         args...
         -------
         freq: Frequency (Hz).
@@ -83,6 +85,17 @@ class PyRAM:
 
     def run(self):
 
+        '''
+        Run the model. Sets the following instance variables:
+        vr: Calculation ranges (m), NumPy 1D array.
+        vz: Calculation depths (m), NumPy 1D array.
+        tll: Transmission loss (dB) at receiver depth (zr),
+             NumPy 1D array, length vr.size.
+        tlg: Transmission loss (dB) grid,
+             NumPy 2D array, dimensions vz.size by vr.size.
+        proc_time: Processing time (s).
+        '''
+
         t0 = process_time()
 
         self.setup()
@@ -105,16 +118,16 @@ class PyRAM:
 
         '''Basic checks on dimensions of inputs'''
 
-        self.status_ok = True
+        self._status_ok = True
 
         # Source and receiver depths
         if not z_ss[0] <= self._zs <= z_ss[-1]:
-            self.status_ok = False
+            self._status_ok = False
             raise ValueError('Source depth outside sound speed depths')
         if not z_ss[0] <= self._zr <= z_ss[-1]:
-            self.status_ok = False
+            self._status_ok = False
             raise ValueError('Receiver depth outside sound speed depths')
-        if self.status_ok:
+        if self._status_ok:
             self._z_ss = z_ss
 
         # Water sound speed profiles
@@ -133,8 +146,8 @@ class PyRAM:
         for prof in [cb, rhob, attn]:
             prof_dims = prof.shape
             if (prof_dims[0] != num_depths) or (prof_dims[1] != num_ranges):
-                self.status_ok = False
-        if self.status_ok:
+                self._status_ok = False
+        if self._status_ok:
             self._rp_sb, self._cb, self._rhob, self._attn = \
                 rp_sb, cb, rhob, attn
         else:
@@ -143,7 +156,7 @@ class PyRAM:
         if rbzb[:, 1].max() == self._z_ss[-1]:
             self._rbzb = rbzb
         else:
-            self.status_ok = False
+            self._status_ok = False
             raise ValueError('Deepest bathymetry point must be at same depth as deepest sound speed')
 
         # Set flags for range-dependence (water SSP, seabed profile, bathymetry)
@@ -173,7 +186,8 @@ class PyRAM:
         self._zmplt = kwargs.get('zmplt', self._rbzb[:, 1].max())
 
         self._rmax = kwargs.get('rmax', numpy.max([self._rp_ss.max(),
-                                                   self._rp_sb.max()]))
+                                                   self._rp_sb.max(),
+                                                   self._rbzb[:, 0].max()]))
 
         self._ns = kwargs.get('ns', PyRAM._ns_default)
         self._rs = kwargs.get('rs', self._rmax + self._dr)
@@ -254,9 +268,9 @@ class PyRAM:
 
     def profl(self):
 
-        attnf = 10  # 10dB/wavelength at floor
-
         '''Set up the profiles'''
+
+        attnf = 10  # 10dB/wavelength at floor
 
         z = numpy.linspace(0, self._zmax, self.nz+2)
         self.cw = numpy.interp(z, self._z_ss, self._cw[:, self.ss_ind],
@@ -289,7 +303,7 @@ class PyRAM:
         '''Matrix updates'''
 
         # Varying bathymetry
-        if self.rd_bt and (self.bt_ind < self._rbzb.shape[0]-2):
+        if self.rd_bt and (self.bt_ind < self._rbzb.shape[0]-1):
             if self.r >= self._rbzb[self.bt_ind+1, 0]:
                 self.bt_ind += 1
             jz = self.iz
