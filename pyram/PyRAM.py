@@ -242,8 +242,8 @@ class PyRAM:
         self.ksqw = numpy.zeros(self.nz+2)
         nvr = int(numpy.floor(self._rmax/(self._dr*self._ndr)))
         nvz = int(numpy.floor(self.nzplt/self._ndz))
-        self.vr = numpy.arange(1, nvr+1)*self._dr
-        self.vz = numpy.arange(1, nvz+1)*self._dz
+        self.vr = numpy.arange(1, nvr+1)*self._dr*self._ndr
+        self.vz = numpy.arange(1, nvz+1)*self._dz*self._ndz
         self.tll = numpy.zeros(nvr)
         self.tlg = numpy.zeros([nvz, nvr])
         self.tlc = -1  # TL output range counter
