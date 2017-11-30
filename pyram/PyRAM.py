@@ -100,13 +100,11 @@ class PyRAM:
 
         self.setup()
 
-        rind = 0
-        while rind < self.vr.size-1:
+        while self.r < self._rmax:
             self.updat()
             solve(self.u, self.v, self.s1, self.s2, self.s3,
                   self.r1, self.r2, self.r3, self.iz, self.nz, self._np)
-            rind += 1
-            self.r = self.vr[rind]
+            self.r += self._dr
             self.mdr, self.tlc = \
                 (outpt(self.r, self.mdr, self._ndr, self._ndz, self.tlc,
                        self.f3, self.u, self.dir, self.ir, self.tll,
