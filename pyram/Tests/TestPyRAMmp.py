@@ -78,7 +78,8 @@ class TestPyRAMmp(unittest.TestCase):
         pyram_mp = PyRAMmp()
         nproc = pyram_mp.pool._processes
         t0 = time()
-        pyram_mp.submit_runs(runs)
+        pyram_mp.submit_runs(runs[:int(num_runs/2)])  # Submit in 2 batches
+        pyram_mp.submit_runs(runs[int(num_runs/2):])
         self.elap_time = time() - t0  # Approximate value as process_time can't be used
 
         results = [None]*num_runs

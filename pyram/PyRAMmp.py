@@ -25,8 +25,8 @@ class PyRAMmp():
         self._waiting = []  # Waiting runs
         self._num_waiting = 0  # Number of waiting runs
         self._num_active = 0  # Number of active runs
-        self._sleep_time = 1e-3
-        self._first = True
+        self._sleep_time = 1e-2  # Minimum sleep time between adding runs to pool
+        self._new = True  # Flag to indicate ready for new set of runs
 
     def submit_runs(self, runs):
 
@@ -41,25 +41,22 @@ class PyRAMmp():
         self._num_waiting = len(self._waiting)
 
         # Check how many active runs have finished
-        num_free = 0
         for run in self._outputs:
             self.results.append(run)
             self._outputs.remove(run)
             self._num_active -= 1
-            num_free += 1
+
+        num_start = self.pool._processes - self._num_active
+        num_start = min(num_start, self._num_waiting)
 
         # Start new runs if processes are free
-        if self._first:
-            num_start = self.pool._processes
-        else:
-            num_start = min(num_free, self._num_waiting)
         for _ in range(num_start):
             run = self._waiting.pop(0)
             self._add_run(run)
             self._num_active += 1
 
-        if self._first:
-            self._first = False
+        if self._new:
+            self._new = False
             self._wait()
 
     def _wait(self):
@@ -71,6 +68,8 @@ class PyRAMmp():
         while self._num_active > 0:
             self.submit_runs([])
             sleep(self._sleep_time)
+
+        self._new = True
 
     def close(self):
 

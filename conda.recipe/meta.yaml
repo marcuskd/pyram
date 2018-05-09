@@ -1,8 +1,8 @@
 {% set name = "pyram" %}
-{% set version = "1.1.0" %}
+{% set version = "1.1.1" %}
 {% set file_ext = "tar.gz" %}
 {% set hash_type = "sha256" %}
-{% set hash_value = "3eb41a92281258d182e8c9b34f4ca561b31c95d54d81710dd8d1a418ccd333da" %}
+{% set hash_value = "ec31ec2a46b542a80be0c07c0c2a7b0f81bf59d8da30afe97c6885ad55af0584" %}
 
 package:
   name: '{{ name|lower }}'
