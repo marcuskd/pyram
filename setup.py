@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='pyram',
-      version='1.0.1',
+      version='1.1.0',
       description='Python adaptation of the Range-dependent Acoustic Model (RAM)',
       author='Marcus Donnelly',
       author_email='marcus.k.donnelly@gmail.com',
@@ -19,8 +19,8 @@ setup(name='pyram',
                 'Parabolic Equation'
                 ],
       packages=find_packages(),
-      install_requires=['numpy >= 1.13',
-                        'numba >= 0.35'
+      install_requires=['numpy >= 1.14',
+                        'numba >= 0.37'
                         ],
       package_data={'pyram.Tests': ['tl_ref.line'],
                     },

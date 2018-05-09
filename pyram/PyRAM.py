@@ -40,6 +40,7 @@ class PyRAM:
     _ndz_default = 1
     _ns_default = 1
     _lyrw_default = 20
+    _id_default = 0
 
     def __init__(self, freq, zs, zr, z_ss, rp_ss, cw, z_sb, rp_sb, cb, rhob,
                  attn, rbzb, **kwargs):
@@ -77,6 +78,7 @@ class PyRAM:
         rs: Maximum range of the stability constraints (m). Defaults to rmax.
         lyrw: Absorbing layer width (wavelengths). Defaults to _lyrw_default.
         NB: original zmax input not needed due to lyrw.
+        id: Integer identifier for this instance.
         '''
 
         self._freq, self._zs, self._zr = freq, zs, zr
@@ -111,6 +113,15 @@ class PyRAM:
                        self.tlg)[:])
 
         self.proc_time = process_time() - t0
+
+        results = {'ID': self._id,
+                   'Proc Time': self.proc_time,
+                   'Ranges': self.vr,
+                   'Depths': self.vz,
+                   'TL Grid': self.tlg,
+                   'TL Line': self.tll}
+
+        return results
 
     def check_inputs(self, z_ss, rp_ss, cw, z_sb, rp_sb, cb, rhob, attn, rbzb):
 
@@ -191,6 +202,8 @@ class PyRAM:
         self._rs = kwargs.get('rs', self._rmax + self._dr)
 
         self._lyrw = kwargs.get('lyrw', PyRAM._lyrw_default)
+
+        self._id = kwargs.get('id', PyRAM._id_default)
 
         self.proc_time = None
 
