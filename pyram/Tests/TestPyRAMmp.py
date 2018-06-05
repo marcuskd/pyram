@@ -1,10 +1,16 @@
-'''TestPyRAMmp class definition'''
+'''
+TestPyRAMmp unit test class.
+Usage: python TestPyRAMmp.py -nrep <nrep>
+Number of PyRAM runs = 5*nrep. nrep default is 2.
+Tests should always pass but speedup will depend upon computing environment.
+'''
 
 import unittest
 import numpy
 from pyram.PyRAMmp import PyRAMmp
 from pyram.PyRAM import PyRAM
 from time import time
+import sys
 
 
 class TestPyRAMmp(unittest.TestCase):
@@ -14,6 +20,8 @@ class TestPyRAMmp(unittest.TestCase):
     '''
 
     def setUp(self):
+
+        global nrep
 
         self.test_freq = 50
 
@@ -34,8 +42,8 @@ class TestPyRAMmp(unittest.TestCase):
                                                  [40000, 400]]))
 
         self.pyram_kwargs = dict(rmax=50000,
-                                 dr=500,
-                                 dz=2,
+                                 dr=100,
+                                 dz=1,
                                  zmplt=500,
                                  c0=1600)
 
@@ -56,7 +64,7 @@ class TestPyRAMmp(unittest.TestCase):
                                  self.test_freq-10,
                                  self.test_freq,
                                  self.test_freq+10,
-                                 self.test_freq+20], 20)  # 100 runs
+                                 self.test_freq+20], nrep)  # nrep*5 runs
 
         self.tl_tol = 1e-2  # Tolerable mean difference in TL (dB)
 
@@ -66,6 +74,8 @@ class TestPyRAMmp(unittest.TestCase):
     def test_PyRAM(self):
 
         num_runs = len(self.freqs)
+
+        print(num_runs, 'PyRAM runs set up, running...', )
 
         runs = []
         for n in range(num_runs):
@@ -104,8 +114,26 @@ class TestPyRAMmp(unittest.TestCase):
                 self.assertTrue(mean_diff > self.tl_tol,
                                 'Mean TL difference within tolerance for non-test frequency')
 
-        speed_fact = 100*self.elap_time/(self.proc_time/nproc)
+        print('Finished.\n')
+        speed_fact = 100*(self.proc_time/nproc)/self.elap_time
         print('{0:.1f} % of expected speed up achieved'.format(speed_fact))
 
 if __name__ == "__main__":
+
+    print(__doc__)
+
+    if (len(sys.argv) == 3) and (sys.argv[1] == '-nrep'):
+        try:
+            nrep = int(sys.argv[2])
+        except ValueError:
+            print('Invalid entry for nrep: defaulting to 2')
+            nrep = 2
+    else:
+        nrep = 2
+    if nrep < 1:
+        print('nrep cannot be lower than 1: changing to 1\n')
+        nrep = 1
+
+    sys.argv = [sys.argv[0]]
+
     unittest.main()
