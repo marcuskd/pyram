@@ -162,11 +162,11 @@ class PyRAM:
         else:
             raise ValueError('Dimensions of z_sb, rp_sb, cb, rhob and attn must be consistent.')
 
-        if rbzb[:, 1].max() == self._z_ss[-1]:
+        if rbzb[:, 1].max() <= self._z_ss[-1]:
             self._rbzb = rbzb
         else:
             self._status_ok = False
-            raise ValueError('Deepest bathymetry point must be at same depth as deepest sound speed')
+            raise ValueError('Deepest sound speed point must be at or below deepest bathymetry point.')
 
         # Set flags for range-dependence (water SSP, seabed profile, bathymetry)
         self.rd_ss = True if self._rp_ss.size > 1 else False
@@ -225,7 +225,8 @@ class PyRAM:
         self.ir = int(numpy.floor(ri))  # Receiver depth index
         self.dir = ri - self.ir  # Offset
         self.k0 = self.omega/self._c0
-        self._zmax = self._z_ss.max() + self._lyrw*self._lambda
+        self._z_sb += self._z_ss[-1]  # Make seabed profiles relative to deepest water profile point
+        self._zmax = self._z_sb.max() + self._lyrw*self._lambda
         self.nz = int(numpy.floor(self._zmax/self._dz)) - 1  # Number of depth grid points - 2
         self.nzplt = int(numpy.floor(self._zmplt/self._dz))  # Deepest output grid point
         self.iz = int(numpy.floor(self._rbzb[0, 1]/self._dz))  # First index below seabed

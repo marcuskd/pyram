@@ -1,7 +1,8 @@
 '''
 TestPyRAMmp unit test class.
-Usage: python TestPyRAMmp.py -nrep <nrep>
-Number of PyRAM runs = 5*nrep. nrep default is 2.
+Uses configuration file TestPyRAMmp_Config.xml.
+Computational range and depth steps and number of repetitions are configurable.
+Number of PyRAM runs = 5 * number of repetitions.
 Tests should always pass but speedup will depend upon computing environment.
 '''
 
@@ -9,8 +10,8 @@ import unittest
 import numpy
 from pyram.PyRAMmp import PyRAMmp
 from pyram.PyRAM import PyRAM
+import xml.etree.ElementTree as et
 from time import time
-import sys
 
 
 class TestPyRAMmp(unittest.TestCase):
@@ -21,7 +22,17 @@ class TestPyRAMmp(unittest.TestCase):
 
     def setUp(self):
 
-        global nrep
+        config_file = 'TestPyRAMmp_Config.xml'
+        root = et.parse(config_file).getroot()
+
+        for child in root:
+
+            if child.tag == 'RangeStep':
+                dr = float(child.text)
+            if child.tag == 'DepthStep':
+                dz = float(child.text)
+            if child.tag == 'NumberOfRepetitions':
+                nrep = int(child.text)
 
         self.test_freq = 50
 
@@ -42,8 +53,8 @@ class TestPyRAMmp(unittest.TestCase):
                                                  [40000, 400]]))
 
         self.pyram_kwargs = dict(rmax=50000,
-                                 dr=100,
-                                 dz=1,
+                                 dr=dr,
+                                 dz=dz,
                                  zmplt=500,
                                  c0=1600)
 
@@ -119,21 +130,4 @@ class TestPyRAMmp(unittest.TestCase):
         print('{0:.1f} % of expected speed up achieved'.format(speed_fact))
 
 if __name__ == "__main__":
-
-    print(__doc__)
-
-    if (len(sys.argv) == 3) and (sys.argv[1] == '-nrep'):
-        try:
-            nrep = int(sys.argv[2])
-        except ValueError:
-            print('Invalid entry for nrep: defaulting to 2')
-            nrep = 2
-    else:
-        nrep = 2
-    if nrep < 1:
-        print('nrep cannot be lower than 1: changing to 1\n')
-        nrep = 1
-
-    sys.argv = [sys.argv[0]]
-
     unittest.main()

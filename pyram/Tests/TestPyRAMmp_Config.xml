@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<Config>
+    <RangeStep>100</RangeStep>
+    <DepthStep>1</DepthStep>
+    <NumberOfRepetitions>2</NumberOfRepetitions>
+</Config>
