@@ -315,8 +315,9 @@ class PyRAM:
         '''Matrix updates'''
 
         # Varying bathymetry
-        if self.rd_bt and (self.bt_ind < self._rbzb.shape[0]-1):
-            if self.r >= self._rbzb[self.bt_ind+1, 0]:
+        if self.rd_bt:
+            npt = self._rbzb.shape[0]
+            while (self.bt_ind < npt-1) and (self.r >= self._rbzb[self.bt_ind+1, 0]):
                 self.bt_ind += 1
             jz = self.iz
             z = self._rbzb[self.bt_ind, 1] + \
@@ -334,9 +335,12 @@ class PyRAM:
                       self.pd2)
 
         # Varying sound speed profile
-        if self.rd_ss and (self.ss_ind < self._rp_ss.size-1):
-            if self.r >= self._rp_ss[self.ss_ind+1]:
+        if self.rd_ss:
+            npt = self._rp_ss.size
+            ss_ind_o = self.ss_ind
+            while (self.ss_ind < npt-1) and (self.r >= self._rp_ss[self.ss_ind+1]):
                 self.ss_ind += 1
+            if self.ss_ind != ss_ind_o:
                 self.profl()
                 matrc(self.k0, self._dz, self.iz, self.iz, self.nz, self._np,
                       self.f1, self.f2, self.f3, self.ksq, self.alpw,
@@ -345,9 +349,12 @@ class PyRAM:
                       self.pd2)
 
         # Varying seabed profile
-        if self.rd_sb and (self.sb_ind < self._rp_sb.size-1):
-            if self.r >= self._rp_sb[self.sb_ind+1]:
+        if self.rd_sb:
+            npt = self._rp_sb.size
+            sb_ind_o = self.sb_ind
+            while (self.sb_ind < npt-1) and (self.r >= self._rp_sb[self.sb_ind+1]):
                 self.sb_ind += 1
+            if self.sb_ind != sb_ind_o:
                 self.profl()
                 matrc(self.k0, self._dz, self.iz, self.iz, self.nz, self._np,
                       self.f1, self.f2, self.f3, self.ksq, self.alpw,
