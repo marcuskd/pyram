@@ -183,11 +183,11 @@ class PyRAM:
                               if len(self._cw.shape) > 1 else
                               numpy.mean(self._cw))
 
-        self._lambda = self._c0/self._freq
+        self._lambda = self._c0 / self._freq
 
         # dr and dz are based on 1500m/s to get sensible output steps
-        self._dr = kwargs.get('dr', self._np*1500/self._freq)
-        self._dz = kwargs.get('dz', PyRAM._dzf*1500/self._freq)
+        self._dr = kwargs.get('dr', self._np * 1500 / self._freq)
+        self._dz = kwargs.get('dz', PyRAM._dzf * 1500 / self._freq)
 
         self._ndr = kwargs.get('ndr', PyRAM._ndr_default)
         self._ndz = kwargs.get('ndz', PyRAM._ndz_default)
@@ -216,46 +216,46 @@ class PyRAM:
                                       [[self._rmax, self._rbzb[-1, 1]]],
                                       axis=0)
 
-        self.eta = 1/(40*numpy.pi*numpy.log10(numpy.exp(1)))
+        self.eta = 1 / (40 * numpy.pi * numpy.log10(numpy.exp(1)))
         self.ib = 0  # Bathymetry pair index
         self.mdr = 0  # Output range counter
         self.r = self._dr
-        self.omega = 2*numpy.pi*self._freq
-        ri = self._zr/self._dz
+        self.omega = 2 * numpy.pi * self._freq
+        ri = self._zr / self._dz
         self.ir = int(numpy.floor(ri))  # Receiver depth index
         self.dir = ri - self.ir  # Offset
-        self.k0 = self.omega/self._c0
+        self.k0 = self.omega / self._c0
         self._z_sb += self._z_ss[-1]  # Make seabed profiles relative to deepest water profile point
-        self._zmax = self._z_sb.max() + self._lyrw*self._lambda
-        self.nz = int(numpy.floor(self._zmax/self._dz)) - 1  # Number of depth grid points - 2
-        self.nzplt = int(numpy.floor(self._zmplt/self._dz))  # Deepest output grid point
-        self.iz = int(numpy.floor(self._rbzb[0, 1]/self._dz))  # First index below seabed
+        self._zmax = self._z_sb.max() + self._lyrw * self._lambda
+        self.nz = int(numpy.floor(self._zmax / self._dz)) - 1  # Number of depth grid points - 2
+        self.nzplt = int(numpy.floor(self._zmplt / self._dz))  # Deepest output grid point
+        self.iz = int(numpy.floor(self._rbzb[0, 1] / self._dz))  # First index below seabed
         self.iz = max(1, self.iz)
-        self.iz = min(self.nz-1, self.iz)
+        self.iz = min(self.nz - 1, self.iz)
 
-        self.u = numpy.zeros(self.nz+2, dtype=numpy.complex)
-        self.v = numpy.zeros(self.nz+2, dtype=numpy.complex)
-        self.ksq = numpy.zeros(self.nz+2, dtype=numpy.complex)
-        self.ksqb = numpy.zeros(self.nz+2, dtype=numpy.complex)
-        self.r1 = numpy.zeros([self.nz+2, self._np], dtype=numpy.complex)
-        self.r2 = numpy.zeros([self.nz+2, self._np], dtype=numpy.complex)
-        self.r3 = numpy.zeros([self.nz+2, self._np], dtype=numpy.complex)
-        self.s1 = numpy.zeros([self.nz+2, self._np], dtype=numpy.complex)
-        self.s2 = numpy.zeros([self.nz+2, self._np], dtype=numpy.complex)
-        self.s3 = numpy.zeros([self.nz+2, self._np], dtype=numpy.complex)
+        self.u = numpy.zeros(self.nz + 2, dtype=numpy.complex)
+        self.v = numpy.zeros(self.nz + 2, dtype=numpy.complex)
+        self.ksq = numpy.zeros(self.nz + 2, dtype=numpy.complex)
+        self.ksqb = numpy.zeros(self.nz + 2, dtype=numpy.complex)
+        self.r1 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex)
+        self.r2 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex)
+        self.r3 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex)
+        self.s1 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex)
+        self.s2 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex)
+        self.s3 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex)
         self.pd1 = numpy.zeros(self._np, dtype=numpy.complex)
         self.pd2 = numpy.zeros(self._np, dtype=numpy.complex)
 
-        self.alpw = numpy.zeros(self.nz+2)
-        self.alpb = numpy.zeros(self.nz+2)
-        self.f1 = numpy.zeros(self.nz+2)
-        self.f2 = numpy.zeros(self.nz+2)
-        self.f3 = numpy.zeros(self.nz+2)
-        self.ksqw = numpy.zeros(self.nz+2)
-        nvr = int(numpy.floor(self._rmax/(self._dr*self._ndr)))
-        nvz = int(numpy.floor(self.nzplt/self._ndz))
-        self.vr = numpy.arange(1, nvr+1)*self._dr*self._ndr
-        self.vz = numpy.arange(1, nvz+1)*self._dz*self._ndz
+        self.alpw = numpy.zeros(self.nz + 2)
+        self.alpb = numpy.zeros(self.nz + 2)
+        self.f1 = numpy.zeros(self.nz + 2)
+        self.f2 = numpy.zeros(self.nz + 2)
+        self.f3 = numpy.zeros(self.nz + 2)
+        self.ksqw = numpy.zeros(self.nz + 2)
+        nvr = int(numpy.floor(self._rmax / (self._dr * self._ndr)))
+        nvz = int(numpy.floor(self.nzplt / self._ndz))
+        self.vr = numpy.arange(1, nvr + 1) * self._dr * self._ndr
+        self.vz = numpy.arange(1, nvz + 1) * self._dz * self._ndz
         self.tll = numpy.zeros(nvr)
         self.tlg = numpy.zeros([nvz, nvr])
         self.tlc = -1  # TL output range counter
@@ -284,7 +284,7 @@ class PyRAM:
 
         attnf = 10  # 10dB/wavelength at floor
 
-        z = numpy.linspace(0, self._zmax, self.nz+2)
+        z = numpy.linspace(0, self._zmax, self.nz + 2)
         self.cw = numpy.interp(z, self._z_ss, self._cw[:, self.ss_ind],
                                left=self._cw[0, self.ss_ind],
                                right=self._cw[-1, self.ss_ind])
@@ -297,18 +297,18 @@ class PyRAM:
         attnlyr = numpy.concatenate((self._attn[:, self.sb_ind],
                                      [self._attn[-1, self.sb_ind], attnf]))
         zlyr = numpy.concatenate((self._z_sb,
-                                  [self._z_sb[-1] + 0.75*self._lyrw*self._lambda,
-                                   self._z_sb[-1] + self._lyrw*self._lambda]))
+                                  [self._z_sb[-1] + 0.75 * self._lyrw * self._lambda,
+                                   self._z_sb[-1] + self._lyrw * self._lambda]))
         self.attn = numpy.interp(z, zlyr, attnlyr,
                                  left=self._attn[0, self.sb_ind],
                                  right=attnf)
 
-        for i in range(self.nz+2):
-            self.ksqw[i] = (self.omega/self.cw[i])**2 - self.k0**2
-            self.ksqb[i] = ((self.omega/self.cb[i]) *
-                            (1 + 1j*self.eta*self.attn[i]))**2 - self.k0**2
-            self.alpw[i] = numpy.sqrt(self.cw[i]/self._c0)
-            self.alpb[i] = numpy.sqrt(self.rhob[i]*self.cb[i]/self._c0)
+        for i in range(self.nz + 2):
+            self.ksqw[i] = (self.omega / self.cw[i])**2 - self.k0**2
+            self.ksqb[i] = ((self.omega / self.cb[i]) *
+                            (1 + 1j * self.eta * self.attn[i]))**2 - self.k0**2
+            self.alpw[i] = numpy.sqrt(self.cw[i] / self._c0)
+            self.alpb[i] = numpy.sqrt(self.rhob[i] * self.cb[i] / self._c0)
 
     def updat(self):
 
@@ -317,16 +317,16 @@ class PyRAM:
         # Varying bathymetry
         if self.rd_bt:
             npt = self._rbzb.shape[0]
-            while (self.bt_ind < npt-1) and (self.r >= self._rbzb[self.bt_ind+1, 0]):
+            while (self.bt_ind < npt - 1) and (self.r >= self._rbzb[self.bt_ind + 1, 0]):
                 self.bt_ind += 1
             jz = self.iz
             z = self._rbzb[self.bt_ind, 1] + \
-                (self.r + 0.5*self._dr - self._rbzb[self.bt_ind, 0]) * \
-                (self._rbzb[self.bt_ind+1, 1] - self._rbzb[self.bt_ind, 1]) / \
-                (self._rbzb[self.bt_ind+1, 0] - self._rbzb[self.bt_ind, 0])
-            self.iz = int(numpy.floor(z/self._dz))  # First index below seabed
+                (self.r + 0.5 * self._dr - self._rbzb[self.bt_ind, 0]) * \
+                (self._rbzb[self.bt_ind + 1, 1] - self._rbzb[self.bt_ind, 1]) / \
+                (self._rbzb[self.bt_ind + 1, 0] - self._rbzb[self.bt_ind, 0])
+            self.iz = int(numpy.floor(z / self._dz))  # First index below seabed
             self.iz = max(1, self.iz)
-            self.iz = min(self.nz-1, self.iz)
+            self.iz = min(self.nz - 1, self.iz)
             if (self.iz != jz):
                 matrc(self.k0, self._dz, self.iz, jz, self.nz, self._np,
                       self.f1, self.f2, self.f3, self.ksq, self.alpw,
@@ -338,7 +338,7 @@ class PyRAM:
         if self.rd_ss:
             npt = self._rp_ss.size
             ss_ind_o = self.ss_ind
-            while (self.ss_ind < npt-1) and (self.r >= self._rp_ss[self.ss_ind+1]):
+            while (self.ss_ind < npt - 1) and (self.r >= self._rp_ss[self.ss_ind + 1]):
                 self.ss_ind += 1
             if self.ss_ind != ss_ind_o:
                 self.profl()
@@ -352,7 +352,7 @@ class PyRAM:
         if self.rd_sb:
             npt = self._rp_sb.size
             sb_ind_o = self.sb_ind
-            while (self.sb_ind < npt-1) and (self.r >= self._rp_sb[self.sb_ind+1]):
+            while (self.sb_ind < npt - 1) and (self.r >= self._rp_sb[self.sb_ind + 1]):
                 self.sb_ind += 1
             if self.sb_ind != sb_ind_o:
                 self.profl()
@@ -378,14 +378,14 @@ class PyRAM:
 
         # Conditions for the delta function
 
-        si = self._zs/self._dz
+        si = self._zs / self._dz
         _is = int(numpy.floor(si))  # Source depth index
         dis = si - _is  # Offset
 
-        self.u[_is] = (1 - dis)*numpy.sqrt(2*numpy.pi/self.k0) / \
-            (self._dz*self.alpw[_is])
-        self.u[_is+1] = dis*numpy.sqrt(2*numpy.pi/self.k0) / \
-            (self._dz*self.alpw[_is])
+        self.u[_is] = (1 - dis) * numpy.sqrt(2 * numpy.pi / self.k0) / \
+            (self._dz * self.alpw[_is])
+        self.u[_is + 1] = dis * numpy.sqrt(2 * numpy.pi / self.k0) / \
+            (self._dz * self.alpw[_is])
 
         # Divide the delta function by (1-X)**2 to get a smooth rhs
 
@@ -414,16 +414,16 @@ class PyRAM:
 
         '''The coefficients of the rational approximation'''
 
-        n = 2*self._np
-        _bin = numpy.zeros([n+1, n+1])
-        a = numpy.zeros([n+1, n+1], dtype=numpy.complex)
+        n = 2 * self._np
+        _bin = numpy.zeros([n + 1, n + 1])
+        a = numpy.zeros([n + 1, n + 1], dtype=numpy.complex)
         b = numpy.zeros(n, dtype=numpy.complex)
-        dg = numpy.zeros(n+1, dtype=numpy.complex)
+        dg = numpy.zeros(n + 1, dtype=numpy.complex)
         dh1 = numpy.zeros(n, dtype=numpy.complex)
         dh2 = numpy.zeros(n, dtype=numpy.complex)
         dh3 = numpy.zeros(n, dtype=numpy.complex)
-        fact = numpy.zeros(n+1)
-        sig = self.k0*self._dr
+        fact = numpy.zeros(n + 1)
+        sig = self.k0 * self._dr
 
         if ip == 1:
             nu, alp = 0, 0
@@ -433,85 +433,85 @@ class PyRAM:
         # The factorials
         fact[0] = 1
         for i in range(1, n):
-            fact[i] = (i+1)*fact[i-1]
+            fact[i] = (i + 1) * fact[i - 1]
 
         # The binomial coefficients
-        for i in range(n+1):
+        for i in range(n + 1):
             _bin[i, 0] = 1
             _bin[i, i] = 1
-        for i in range(2, n+1):
+        for i in range(2, n + 1):
             for j in range(1, i):
-                _bin[i, j] = _bin[i-1, j-1] + _bin[i-1, j]
+                _bin[i, j] = _bin[i - 1, j - 1] + _bin[i - 1, j]
 
         # The accuracy constraints
         dg, dh1, dh2, dh3 = \
             self.deriv(n, sig, alp, dg, dh1, dh2, dh3, _bin, nu)
         for i in range(n):
-            b[i] = dg[i+1]
+            b[i] = dg[i + 1]
         for i in range(n):
-            if 2*i <= n-1:
-                a[i, 2*i] = fact[i]
-            for j in range(i+1):
-                if 2*j+1 <= n-1:
-                    a[i, 2*j+1] = -_bin[i+1, j+1]*fact[j]*dg[i-j]
+            if 2 * i <= n - 1:
+                a[i, 2 * i] = fact[i]
+            for j in range(i + 1):
+                if 2 * j + 1 <= n - 1:
+                    a[i, 2 * j + 1] = -_bin[i + 1, j + 1] * fact[j] * dg[i - j]
 
         # The stability constraints
 
         if self._ns >= 1:
             z1 = -3 + 0j
-            b[n-1] = -1
+            b[n - 1] = -1
             for j in range(self._np):
-                a[n-1, 2*j] = z1**(j+1)
-                a[n-1, 2*j+1] = 0
+                a[n - 1, 2 * j] = z1**(j + 1)
+                a[n - 1, 2 * j + 1] = 0
 
         if self._ns >= 2:
             z1 = -1.5 + 0j
-            b[n-2] = -1
+            b[n - 2] = -1
             for j in range(self._np):
-                a[n-2, 2*j] = z1**(j+1)
-                a[n-2, 2*j+1] = 0
+                a[n - 2, 2 * j] = z1**(j + 1)
+                a[n - 2, 2 * j + 1] = 0
 
         a, b = self.gauss(n, a, b, self.pivot)
 
         dh1[0] = 1
         for j in range(self._np):
-            dh1[j+1] = b[2*j]
+            dh1[j + 1] = b[2 * j]
         dh1, dh2 = self.fndrt(dh1, self._np, dh2, self.guerre)
         for j in range(self._np):
-            self.pd1[j] = -1/dh2[j]
+            self.pd1[j] = -1 / dh2[j]
 
         dh1[0] = 1
         for j in range(self._np):
-            dh1[j+1] = b[2*j+1]
+            dh1[j + 1] = b[2 * j + 1]
         dh1, dh2 = self.fndrt(dh1, self._np, dh2, self.guerre)
         for j in range(self._np):
-            self.pd2[j] = -1/dh2[j]
+            self.pd2[j] = -1 / dh2[j]
 
     @staticmethod
     def deriv(n, sig, alp, dg, dh1, dh2, dh3, _bin, nu):
 
         '''The derivatives of the operator function at x=0'''
 
-        dh1[0] = 0.5*1j*sig
+        dh1[0] = 0.5 * 1j * sig
         exp1 = -0.5
         dh2[0] = alp
         exp2 = -1
-        dh3[0] = -2*nu
+        dh3[0] = -2 * nu
         exp3 = -1
         for i in range(1, n):
-            dh1[i] = dh1[i-1]*exp1
+            dh1[i] = dh1[i - 1] * exp1
             exp1 -= 1
-            dh2[i] = dh2[i-1]*exp2
+            dh2[i] = dh2[i - 1] * exp2
             exp2 -= 1
-            dh3[i] = -nu*dh3[i-1]*exp3
+            dh3[i] = -nu * dh3[i - 1] * exp3
             exp3 -= 1
 
         dg[0] = 1
         dg[1] = dh1[0] + dh2[0] + dh3[0]
         for i in range(1, n):
-            dg[i+1] = dh1[i] + dh2[i] + dh3[i]
+            dg[i + 1] = dh1[i] + dh2[i] + dh3[i]
             for j in range(i):
-                dg[i+1] += _bin[i, j]*(dh1[j] + dh2[j] + dh3[j])*dg[i-j]
+                dg[i + 1] += _bin[i, j] * (dh1[j] + dh2[j] + dh3[j]) * dg[i - j]
 
         return dg, dh1, dh2, dh3
 
@@ -522,22 +522,22 @@ class PyRAM:
 
         # Downward elimination
         for i in range(n):
-            if i < n-1:
+            if i < n - 1:
                 a, b = pivot(n, i, a, b)
-            a[i, i] = 1/a[i, i]
+            a[i, i] = 1 / a[i, i]
             b[i] *= a[i, i]
-            if i < n-1:
-                for j in range(i+1, n+1):
+            if i < n - 1:
+                for j in range(i + 1, n + 1):
                     a[i, j] *= a[i, i]
-                for k in range(i+1, n):
-                    b[k] -= a[k, i]*b[i]
-                    for j in range(i+1, n):
-                        a[k, j] -= a[k, i]*a[i, j]
+                for k in range(i + 1, n):
+                    b[k] -= a[k, i] * b[i]
+                    for j in range(i + 1, n):
+                        a[k, j] -= a[k, i] * a[i, j]
 
         # Back substitution
-        for i in range(n-2, -1, -1):
-            for j in range(i+1, n):
-                b[i] -= a[i, j]*b[j]
+        for i in range(n - 2, -1, -1):
+            for j in range(i + 1, n):
+                b[i] -= a[i, j] * b[j]
 
         return a, b
 
@@ -548,7 +548,7 @@ class PyRAM:
 
         i0 = i
         amp0 = numpy.abs(a[i, i])
-        for j in range(i+1, n):
+        for j in range(i + 1, n):
             amp = numpy.abs(a[j, i])
             if amp > amp0:
                 i0 = j
@@ -556,7 +556,7 @@ class PyRAM:
 
         if i0 != i:
             b[i0], b[i] = b[i], b[i0]
-            for j in range(i, n+1):
+            for j in range(i, n + 1):
                 a[i0, j], a[i, j] = a[i, j], a[i0, j]
 
         return a, b
@@ -567,27 +567,27 @@ class PyRAM:
         '''The root finding subroutine'''
 
         if n == 1:
-            z[0] = -a[0]/a[1]
+            z[0] = -a[0] / a[1]
             return a, z
 
         if n != 2:
-            for k in range(n-1, 1, -1):
+            for k in range(n - 1, 1, -1):
                 # Obtain an approximate root
                 root = 0
                 err = 1e-12
-                a, root, err = guerre(a, k+1, root, err, 1000)
+                a, root, err = guerre(a, k + 1, root, err, 1000)
                 # Refine the root by iterating five more times
                 err = 0
-                a, root, err = guerre(a, k+1, root, err, 5)
+                a, root, err = guerre(a, k + 1, root, err, 5)
                 z[k] = root
                 # Divide out the factor (z-root).
                 for i in range(k, -1, -1):
-                    a[i] += root*a[i+1]
-                for i in range(k+1):
-                    a[i] = a[i+1]
+                    a[i] += root * a[i + 1]
+                for i in range(k + 1):
+                    a[i] = a[i + 1]
 
-        z[1] = 0.5*(-a[1] + numpy.sqrt(a[1]**2 - 4*a[0]*a[2]))/a[2]
-        z[0] = 0.5*(-a[1] - numpy.sqrt(a[1]**2 - 4*a[0]*a[2]))/a[2]
+        z[1] = 0.5 * (-a[1] + numpy.sqrt(a[1]**2 - 4 * a[0] * a[2])) / a[2]
+        z[0] = 0.5 * (-a[1] - numpy.sqrt(a[1]**2 - 4 * a[0] * a[2])) / a[2]
 
         return a, z
 
@@ -597,44 +597,44 @@ class PyRAM:
         '''This subroutine finds a root of a polynomial of degree n > 2 by Laguerre's method'''
 
         az = numpy.zeros(n, dtype=numpy.complex)
-        azz = numpy.zeros(n-1, dtype=numpy.complex)
+        azz = numpy.zeros(n - 1, dtype=numpy.complex)
 
         eps = 1e-20
         # The coefficients of p'(z) and p''(z)
         for i in range(n):
-            az[i] = (i+1)*a[i+1]
-        for i in range(n-1):
-            azz[i] = (i+1)*az[i+1]
+            az[i] = (i + 1) * a[i + 1]
+        for i in range(n - 1):
+            azz[i] = (i + 1) * az[i + 1]
 
         _iter = 0
         jter = 0  # Missing from original code - assume this is correct
         dz = numpy.Inf
 
-        while (numpy.abs(dz) > err) and (_iter < nter-1):
-            p = a[n-1] + a[n]*z
-            for i in range(n-2, -1, -1):
-                p = a[i] + z*p
+        while (numpy.abs(dz) > err) and (_iter < nter - 1):
+            p = a[n - 1] + a[n] * z
+            for i in range(n - 2, -1, -1):
+                p = a[i] + z * p
             if numpy.abs(p) < eps:
                 return a, z, err
 
-            pz = az[n-2] + az[n-1]*z
-            for i in range(n-3, -1, -1):
-                pz = az[i] + z*pz
+            pz = az[n - 2] + az[n - 1] * z
+            for i in range(n - 3, -1, -1):
+                pz = az[i] + z * pz
 
-            pzz = azz[n-3] + azz[n-2]*z
-            for i in range(n-4, -1, -1):
-                pzz = azz[i] + z*pzz
+            pzz = azz[n - 3] + azz[n - 2] * z
+            for i in range(n - 4, -1, -1):
+                pzz = azz[i] + z * pzz
 
             # The Laguerre perturbation
-            f = pz/p
-            g = f**2 - pzz/p
-            h = numpy.sqrt((n - 1)*(n*g - f**2))
+            f = pz / p
+            g = f**2 - pzz / p
+            h = numpy.sqrt((n - 1) * (n * g - f**2))
             amp1 = numpy.abs(f + h)
             amp2 = numpy.abs(f - h)
             if amp1 > amp2:
-                dz = -n/(f + h)
+                dz = -n / (f + h)
             else:
-                dz = -n/(f - h)
+                dz = -n / (f - h)
 
             _iter += 1
 

@@ -16,15 +16,15 @@ def outpt(r, mdr, ndr, ndz, tlc, f3, u, _dir, ir, tll, tlg):
     if mdr == ndr:
         mdr = 0
         tlc += 1
-        ur = (1 - _dir)*f3[ir]*u[ir] + \
-            _dir*f3[ir+1]*u[ir+1]
-        temp = 10*numpy.log10(r + eps)
-        tll[tlc] = -20*numpy.log10(numpy.abs(ur) + eps) + temp
+        ur = (1 - _dir) * f3[ir] * u[ir] + \
+            _dir * f3[ir + 1] * u[ir + 1]
+        temp = 10 * numpy.log10(r + eps)
+        tll[tlc] = -20 * numpy.log10(numpy.abs(ur) + eps) + temp
 
         for i in range(tlg.shape[0]):
-            j = (i+1)*ndz - 1
-            ur = u[j]*f3[j]
+            j = (i + 1) * ndz
+            ur = u[j] * f3[j]
             tlg[i, tlc] = \
-                -20*numpy.log10(numpy.abs(ur) + eps) + temp
+                -20 * numpy.log10(numpy.abs(ur) + eps) + temp
 
     return numpy.array([mdr, tlc], dtype=numpy.int64)

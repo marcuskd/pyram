@@ -71,11 +71,11 @@ class TestPyRAMmp(unittest.TestCase):
         self.ref_r = results['Ranges']
         self.ref_tl = results['TL Line']
 
-        self.freqs = numpy.tile([self.test_freq-20,
-                                 self.test_freq-10,
+        self.freqs = numpy.tile([self.test_freq - 20,
+                                 self.test_freq - 10,
                                  self.test_freq,
-                                 self.test_freq+10,
-                                 self.test_freq+20], nrep)  # nrep*5 runs
+                                 self.test_freq + 10,
+                                 self.test_freq + 20], nrep)  # nrep*5 runs
 
         self.tl_tol = 1e-2  # Tolerable mean difference in TL (dB)
 
@@ -99,11 +99,11 @@ class TestPyRAMmp(unittest.TestCase):
         pyram_mp = PyRAMmp()
         nproc = pyram_mp.pool._processes
         t0 = time()
-        pyram_mp.submit_runs(runs[:int(num_runs/2)])  # Submit in 2 batches
-        pyram_mp.submit_runs(runs[int(num_runs/2):])
+        pyram_mp.submit_runs(runs[:int(num_runs / 2)])  # Submit in 2 batches
+        pyram_mp.submit_runs(runs[int(num_runs / 2):])
         self.elap_time = time() - t0  # Approximate value as process_time can't be used
 
-        results = [None]*num_runs
+        results = [None] * num_runs
         self.proc_time = 0
         for result in pyram_mp.results:
             rid = result['ID']
@@ -126,7 +126,7 @@ class TestPyRAMmp(unittest.TestCase):
                                 'Mean TL difference within tolerance for non-test frequency')
 
         print('Finished.\n')
-        speed_fact = 100*(self.proc_time/nproc)/self.elap_time
+        speed_fact = 100 * (self.proc_time / nproc) / self.elap_time
         print('{0:.1f} % of expected speed up achieved'.format(speed_fact))
 
 if __name__ == "__main__":
