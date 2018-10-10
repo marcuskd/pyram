@@ -5,6 +5,34 @@ from pyram.PyRAM import PyRAM
 from time import sleep
 
 
+def run_pyram(run):
+
+    '''
+    Add a new PyRAM run. Needs to be a function rather than a class method.
+    '''
+
+    args, kwargs = run[0], run[1]
+
+    freq = args['freq']
+    zs = args['zs']
+    zr = args['zr']
+    z_ss = args['z_ss']
+    rp_ss = args['rp_ss']
+    cw = args['cw']
+    z_sb = args['z_sb']
+    rp_sb = args['rp_sb']
+    cb = args['cb']
+    rhob = args['rhob']
+    attn = args['attn']
+    rbzb = args['rbzb']
+
+    pyram = PyRAM(freq, zs, zr, z_ss, rp_ss, cw, z_sb, rp_sb, cb, rhob,
+                  attn, rbzb, **kwargs)
+    results = pyram.run()
+
+    return results
+
+
 class PyRAMmp():
 
     '''
@@ -41,9 +69,9 @@ class PyRAMmp():
         self._num_waiting = len(self._waiting)
 
         # Check how many active runs have finished
-        for run in self._outputs:
+        for _ in range(len(self._outputs)):
+            run = self._outputs.pop(0)
             self.results.append(run)
-            self._outputs.remove(run)
             self._num_active -= 1
 
         num_start = self.pool._processes - self._num_active
@@ -52,7 +80,7 @@ class PyRAMmp():
         # Start new runs if processes are free
         for _ in range(num_start):
             run = self._waiting.pop(0)
-            self._add_run(run)
+            self.pool.apply_async(run_pyram, args=(run,), callback=self._get_output)
             self._num_active += 1
 
         if self._new:
@@ -79,32 +107,6 @@ class PyRAMmp():
 
         self.pool.close()
         self.pool.join()
-
-    def _add_run(self, run):
-
-        '''
-        Add a new PyRAM run.
-        '''
-
-        args, kwargs = run[0], run[1]
-
-        freq = args['freq']
-        zs = args['zs']
-        zr = args['zr']
-        z_ss = args['z_ss']
-        rp_ss = args['rp_ss']
-        cw = args['cw']
-        z_sb = args['z_sb']
-        rp_sb = args['rp_sb']
-        cb = args['cb']
-        rhob = args['rhob']
-        attn = args['attn']
-        rbzb = args['rbzb']
-
-        pyram = PyRAM(freq, zs, zr, z_ss, rp_ss, cw, z_sb, rp_sb, cb, rhob,
-                      attn, rbzb, **kwargs)
-
-        self.pool.apply_async(pyram.run, callback=self._get_output)
 
     def _get_output(self, output):
 

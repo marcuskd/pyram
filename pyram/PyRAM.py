@@ -102,11 +102,17 @@ class PyRAM:
 
         self.setup()
 
-        while self.r < self._rmax:
+        nr = int(numpy.round(self._rmax / self._dr)) - 1
+
+        for rn in range(nr):
+
             self.updat()
+
             solve(self.u, self.v, self.s1, self.s2, self.s3,
                   self.r1, self.r2, self.r3, self.iz, self.nz, self._np)
-            self.r += self._dr
+
+            self.r = (rn + 2) * self._dr
+
             self.mdr, self.tlc = \
                 (outpt(self.r, self.mdr, self._ndr, self._ndz, self.tlc,
                        self.f3, self.u, self.dir, self.ir, self.tll,
@@ -253,6 +259,7 @@ class PyRAM:
         self.f3 = numpy.zeros(self.nz + 2)
         self.ksqw = numpy.zeros(self.nz + 2)
         nvr = int(numpy.floor(self._rmax / (self._dr * self._ndr)))
+        self._rmax = nvr * self._dr * self._ndr
         nvz = int(numpy.floor(self.nzplt / self._ndz))
         self.vr = numpy.arange(1, nvr + 1) * self._dr * self._ndr
         self.vz = numpy.arange(1, nvz + 1) * self._dz * self._ndz
