@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='pyram',
-      version='1.1.6',
+      version='1.1.7',
       description='Python adaptation of the Range-dependent Acoustic Model (RAM)',
       author='Marcus Donnelly',
       author_email='marcus.k.donnelly@gmail.com',
