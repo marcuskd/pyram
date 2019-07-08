@@ -38,7 +38,7 @@ class TestPyRAM(unittest.TestCase):
         dat = numpy.fromfile(ref_tl_file, sep='\t').reshape([100, 2])
         self.ref_r, self.ref_tl = dat[:, 0], dat[:, 1]
 
-        self.tl_tol = 1e-2  # Tolerable mean difference in TL (dB)
+        self.tl_tol = 1e-2  # Tolerable mean difference in TL (dB) with reference result
 
     def tearDown(self):
         pass
@@ -60,9 +60,10 @@ class TestPyRAM(unittest.TestCase):
 
         self.assertTrue(numpy.array_equal(self.ref_r, pyram.vr),
                         'Ranges are not equal')
+
         mean_diff = numpy.mean(numpy.abs(pyram.tll - self.ref_tl))
         self.assertTrue(mean_diff <= self.tl_tol,
-                        'Mean TL difference not within tolerance')
+                        'Mean TL difference with reference result not within tolerance')
 
 if __name__ == "__main__":
     unittest.main()

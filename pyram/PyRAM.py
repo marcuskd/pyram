@@ -114,9 +114,8 @@ class PyRAM:
             self.r = (rn + 2) * self._dr
 
             self.mdr, self.tlc = \
-                (outpt(self.r, self.mdr, self._ndr, self._ndz, self.tlc,
-                       self.f3, self.u, self.dir, self.ir, self.tll,
-                       self.tlg)[:])
+                (outpt(self.r, self.mdr, self._ndr, self._ndz, self.tlc, self.f3,
+                       self.u, self.dir, self.ir, self.tll, self.tlg, self.cpl, self.cpg)[:])
 
         self.proc_time = process_time() - t0
 
@@ -125,7 +124,10 @@ class PyRAM:
                    'Ranges': self.vr,
                    'Depths': self.vz,
                    'TL Grid': self.tlg,
-                   'TL Line': self.tll}
+                   'TL Line': self.tll,
+                   'CP Grid': self.cpg,
+                   'CP Line': self.cpl,
+                   'c0': self._c0}
 
         return results
 
@@ -265,6 +267,8 @@ class PyRAM:
         self.vz = numpy.arange(1, nvz + 1) * self._dz * self._ndz
         self.tll = numpy.zeros(nvr)
         self.tlg = numpy.zeros([nvz, nvr])
+        self.cpl = numpy.zeros(nvr) * 1j
+        self.cpg = numpy.zeros([nvz, nvr]) * 1j
         self.tlc = -1  # TL output range counter
 
         self.ss_ind = 0  # Sound speed profile range index
@@ -276,7 +280,7 @@ class PyRAM:
         self.selfs()
         self.mdr, self.tlc = \
             (outpt(self.r, self.mdr, self._ndr, self._ndz, self.tlc, self.f3,
-                   self.u, self.dir, self.ir, self.tll, self.tlg)[:])
+                   self.u, self.dir, self.ir, self.tll, self.tlg, self.cpl, self.cpg)[:])
 
         # The propagation matrices
         self.epade()
