@@ -241,18 +241,18 @@ class PyRAM:
         self.iz = max(1, self.iz)
         self.iz = min(self.nz - 1, self.iz)
 
-        self.u = numpy.zeros(self.nz + 2, dtype=numpy.complex)
-        self.v = numpy.zeros(self.nz + 2, dtype=numpy.complex)
-        self.ksq = numpy.zeros(self.nz + 2, dtype=numpy.complex)
-        self.ksqb = numpy.zeros(self.nz + 2, dtype=numpy.complex)
-        self.r1 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex)
-        self.r2 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex)
-        self.r3 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex)
-        self.s1 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex)
-        self.s2 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex)
-        self.s3 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex)
-        self.pd1 = numpy.zeros(self._np, dtype=numpy.complex)
-        self.pd2 = numpy.zeros(self._np, dtype=numpy.complex)
+        self.u = numpy.zeros(self.nz + 2, dtype=numpy.complex128)
+        self.v = numpy.zeros(self.nz + 2, dtype=numpy.complex128)
+        self.ksq = numpy.zeros(self.nz + 2, dtype=numpy.complex128)
+        self.ksqb = numpy.zeros(self.nz + 2, dtype=numpy.complex128)
+        self.r1 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex128)
+        self.r2 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex128)
+        self.r3 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex128)
+        self.s1 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex128)
+        self.s2 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex128)
+        self.s3 = numpy.zeros([self.nz + 2, self._np], dtype=numpy.complex128)
+        self.pd1 = numpy.zeros(self._np, dtype=numpy.complex128)
+        self.pd2 = numpy.zeros(self._np, dtype=numpy.complex128)
 
         self.alpw = numpy.zeros(self.nz + 2)
         self.alpb = numpy.zeros(self.nz + 2)
@@ -427,12 +427,12 @@ class PyRAM:
 
         n = 2 * self._np
         _bin = numpy.zeros([n + 1, n + 1])
-        a = numpy.zeros([n + 1, n + 1], dtype=numpy.complex)
-        b = numpy.zeros(n, dtype=numpy.complex)
-        dg = numpy.zeros(n + 1, dtype=numpy.complex)
-        dh1 = numpy.zeros(n, dtype=numpy.complex)
-        dh2 = numpy.zeros(n, dtype=numpy.complex)
-        dh3 = numpy.zeros(n, dtype=numpy.complex)
+        a = numpy.zeros([n + 1, n + 1], dtype=numpy.complex128)
+        b = numpy.zeros(n, dtype=numpy.complex128)
+        dg = numpy.zeros(n + 1, dtype=numpy.complex128)
+        dh1 = numpy.zeros(n, dtype=numpy.complex128)
+        dh2 = numpy.zeros(n, dtype=numpy.complex128)
+        dh3 = numpy.zeros(n, dtype=numpy.complex128)
         fact = numpy.zeros(n + 1)
         sig = self.k0 * self._dr
 
@@ -607,8 +607,8 @@ class PyRAM:
 
         '''This subroutine finds a root of a polynomial of degree n > 2 by Laguerre's method'''
 
-        az = numpy.zeros(n, dtype=numpy.complex)
-        azz = numpy.zeros(n - 1, dtype=numpy.complex)
+        az = numpy.zeros(n, dtype=numpy.complex128)
+        azz = numpy.zeros(n - 1, dtype=numpy.complex128)
 
         eps = 1e-20
         # The coefficients of p'(z) and p''(z)

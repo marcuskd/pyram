@@ -34,7 +34,7 @@ class TestPyRAM(unittest.TestCase):
                            rbzb=numpy.array([[0, 200],
                                              [40000, 400]]))
 
-        ref_tl_file = 'tl_ref.line'
+        ref_tl_file = './pyram/Tests/tl_ref.line'
         dat = numpy.fromfile(ref_tl_file, sep='\t').reshape([100, 2])
         self.ref_r, self.ref_tl = dat[:, 0], dat[:, 1]
 
