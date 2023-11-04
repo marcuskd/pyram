@@ -692,7 +692,7 @@ def plot_ramTL(ram_out, rbzb, zs, rmax, zmplt, freq, Title,  **kwargs):
     ax1.scatter(0, zs, label= "Stars", color= "k", s=500, marker="*") 
     ax1.set_xlabel('Range [km]')
     ax1.set_ylabel('Depth [m]')
-    ax1.set_title(f"[ RAM-{Title} ] Propagation Loss @ F = {freq} Hz")
+    ax1.set_title(f"[ RAM- {Title} ] Propagation Loss @ F = {freq} Hz")
     ax1.set_xlim((0, rmax/1000))
     ax1.set_ylim((0, zmplt))
     cbar1 = fig1.colorbar(im1, ax=ax1)
@@ -794,7 +794,7 @@ def plot_ramRHOb(rbzb, zs, rmax, zmplt, rp_sb, z_sb, rhob, vmin, vmax, Nxy, Titl
     cbar2.set_label('Density [g/cc]', rotation=270, labelpad=15)
     ax2.set_xlabel('Range [km]')
     ax2.set_ylabel('Depth [m]')
-    ax2.set_title(f"[ RAM-{Title} ] Density in sediment")
+    ax2.set_title(f"[ RAM- {Title} ] Density in sediment")
     ax2.invert_yaxis()
     plt.tight_layout()
     return fig2, ax2
@@ -880,7 +880,7 @@ def plot_ramSSP(rbzb, zs, rmax, rp_sb, z_sb, rp_ss, z_ss, cw, cb, rhob, Nxy, Tit
     cbar2.set_label('Sound speed [m/s]', rotation=270, labelpad=15)
     ax2.set_xlabel('Range [km]')
     ax2.set_ylabel('Depth[m]')
-    ax2.set_title(f"[ RAM-{Title} ] Sound speed profile")
+    ax2.set_title(f"[ RAM- {Title} ] Sound speed profile")
     ax2.invert_yaxis()
     plt.tight_layout()
     
@@ -941,7 +941,7 @@ def plot_ramATN(attn, rbzb, zs, rmax, rp_sb, z_sb, zmplt, Nxy, vmin, vmax, Title
     cbar2.set_label('Attenuation [dB/$\lambda$]', rotation=270, labelpad=15)
     ax2.set_xlabel('Range [km]')
     ax2.set_ylabel('Depth [m]')
-    ax2.set_title(f"[ RAM-{Title} ] Attenuation in sediment")
+    ax2.set_title(f"[ RAM- {Title} ] Attenuation in sediment")
     ax2.invert_yaxis()
     plt.tight_layout()
     
@@ -955,7 +955,7 @@ def plot_ramTline(ram_out, Title, **kwargs):
     ax0.plot(ram_out.vr/1000, ram_out.tll, 'k')
     ax0.set_xlabel('Range [km]')
     ax0.set_ylabel('Loss [dB re 1m]')
-    ax0.set_title(f"[ RAM-{Title} ] Propagation Loss @ z = {zr} m and F = {freq} Hz")
+    ax0.set_title(f"[ RAM- {Title} ] Propagation Loss @ z = {zr} m and F = {freq} Hz")
     ax0.grid('all')
     ax0.invert_yaxis()
     
