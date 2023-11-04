@@ -699,42 +699,6 @@ def plot_ramTL(ram_out, rbzb, zs, rmax, zmplt, freq, Title,  **kwargs):
     cbar1.set_label('Loss [dB]', rotation=270, labelpad=15)
     ax1.invert_yaxis()
 
-def plot_ramTL(ram_out, rbzb, zs, rmax, zmplt, freq, Title,  **kwargs):
-    
-    # Colorbar min and max
-    vmin = kwargs.pop('vmin')
-    vmax = kwargs.pop('vmax')
-    
-    # Bathy
-    rb = np.array(rbzb[:,0])
-    zb = np.array(rbzb[:,1])
-            
-    # Grid definition
-    Zg = np.array(ram_out.tlg)
-    Xg = np.array(ram_out.vr)
-    Yg = np.array(ram_out.vz)
-            
-    """ Remove TL in sediment and reduce artifacts """
-    for ii,x in enumerate(Xg): # For all map pixels
-        for jj,y in enumerate(Yg):
-            if y > np.interp(x, rb, zb) or Zg[jj,ii] > vmax or Zg[jj,ii] < vmin or  np.isnan(Zg[jj,ii]):
-                Zg[jj,ii] = vmax
-    
-    # Plot
-    Xg, Yg = np.meshgrid(np.array(Xg), Yg)
-    fig1, ax1 = plt.subplots()
-    im1 = ax1.pcolormesh(Xg/1000,Yg,Zg, cmap='jet', shading='gouraud', vmin=vmin, vmax=vmax)
-    ax1.plot(rb/1000, zb, 'k', linewidth=8)
-    ax1.scatter(0, zs, label= "Stars", color= "k", s=500, marker="*") 
-    ax1.set_xlabel('Range [km]')
-    ax1.set_ylabel('Depth [m]')
-    ax1.set_title(f"[ RAM-{Title} ] Propagation Loss @ F = {freq} Hz")
-    ax1.set_xlim((0, rmax/1000))
-    ax1.set_ylim((0, zmplt))
-    cbar1 = fig1.colorbar(im1, ax=ax1)
-    cbar1.set_label('Loss [dB]', rotation=270, labelpad=15)
-    ax1.invert_yaxis()
-
 class ramSolver:
     
     def loadEnv(self, **kwargs):
