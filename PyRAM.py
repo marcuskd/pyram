@@ -880,7 +880,7 @@ def plot_ramSSP(rbzb, zs, rmax, rp_sb, z_sb, rp_ss, z_ss, cw, cb, rhob, Nxy, Tit
     cbar2.set_label('Sound speed [m/s]', rotation=270, labelpad=15)
     ax2.set_xlabel('Range [km]')
     ax2.set_ylabel('Depth[m]')
-    ax2.set_title("[RAM: Parabolic Equation] Sound speed profile")
+    ax2.set_title(f"[ RAM-{Title} ] Sound speed profile")
     ax2.invert_yaxis()
     plt.tight_layout()
     
@@ -941,7 +941,7 @@ def plot_ramATN(attn, rbzb, zs, rmax, rp_sb, z_sb, zmplt, Nxy, vmin, vmax, Title
     cbar2.set_label('Attenuation [dB/$\lambda$]', rotation=270, labelpad=15)
     ax2.set_xlabel('Range [km]')
     ax2.set_ylabel('Depth [m]')
-    ax2.set_title("[ RAM-{Title} ] Attenuation in sediment")
+    ax2.set_title(f"[ RAM-{Title} ] Attenuation in sediment")
     ax2.invert_yaxis()
     plt.tight_layout()
     
