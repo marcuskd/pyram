@@ -699,9 +699,9 @@ def plot_ramTL(ram_out, rbzb, zs, rmax, zmplt, freq, Title,  **kwargs):
     cbar1.ax.set_ylabel('Loss [dB]')
     ax1.invert_yaxis()
 
-class ramSolver:
+class ram:
     
-    def loadEnv(self, **kwargs):
+    def __init__(self, **kwargs):
 
         self.inputs = dict(freq   = kwargs.pop('freq'),
                            zs     = kwargs.pop('zs'),
@@ -723,8 +723,7 @@ class ramSolver:
 
         self.tl_tol = 1e-2  # Tolerable mean difference in TL (dB) with reference result
 
-    def compute(self, **kwargs):
-
+    def run(self, **kwargs):
         self.pyram = PyRAM(self.inputs['freq'], self.inputs['zs'], self.inputs['zr'],
                       self.inputs['z_ss'], self.inputs['rp_ss'], self.inputs['cw'],
                       self.inputs['z_sb'], self.inputs['rp_sb'], self.inputs['cb'],
